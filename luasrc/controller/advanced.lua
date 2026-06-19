@@ -493,6 +493,11 @@ function action_set_natmap()
 end
 
 function index()
+    local nixio = require "nixio"
+    local translate = luci.i18n.translate
+    local entry = luci.dispatcher.entry
+    local cbi = luci.dispatcher.cbi
+    local call = luci.dispatcher.call
     if not nixio.fs.access("/etc/config/advanced")then
         return
     end
