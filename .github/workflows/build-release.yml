@@ -131,9 +131,12 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: ${{ env.PKG_NAME }}-${{ matrix.target }}-${{ matrix.version }}
+          # path: |
+            # bin/packages/*/jackie264/${{ env.PKG_NAME }}*.ipk
+            # bin/packages/*/jackie264/${{ env.PKG_NAME }}*.apk
           path: |
-            bin/packages/*/jackie264/${{ env.PKG_NAME }}*.ipk
-            bin/packages/*/jackie264/${{ env.PKG_NAME }}*.apk
+            bin/**/*.ipk
+            bin/**/*.apk
           # if-no-files-found: ignore
           if-no-files-found: error
 
