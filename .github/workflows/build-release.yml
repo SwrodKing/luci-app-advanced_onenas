@@ -134,7 +134,8 @@ jobs:
           path: |
             bin/packages/*/jackie264/${{ env.PKG_NAME }}*.ipk
             bin/packages/*/jackie264/${{ env.PKG_NAME }}*.apk
-          if-no-files-found: ignore
+          # if-no-files-found: ignore
+          if-no-files-found: error
 
   release:
     name: Release ${{ github.repository }}
