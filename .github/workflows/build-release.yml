@@ -20,6 +20,7 @@ jobs:
       tag_name: ${{ steps.version.outputs.tag_name }}
       main_version: ${{ steps.version.outputs.main_version }}
       main_full_version: ${{ steps.version.outputs.main_full_version }}
+      pkg_name: ${{ steps.version.outputs.pkg_name }}
 
     steps:
       - name: 🧾 Checkout repo
@@ -28,10 +29,12 @@ jobs:
       - name: 🏷️ Extract version info from Makefile
         id: version
         run: |
+          PKG_NAME=$(grep -E '^PKG_NAME *:= *' Makefile | head -n1 | cut -d= -f2 | tr -d '[:space:]')
           PKG_VERSION=$(grep -E '^PKG_VERSION *:?=' Makefile | head -n1 | cut -d= -f2 | tr -d '[:space:]')
           PKG_RELEASE=$(grep -E '^PKG_RELEASE *:?=' Makefile | head -n1 | cut -d= -f2 | tr -d '[:space:]')
           COMBINED_VERSION="v${PKG_VERSION}-r${PKG_RELEASE}"
           
+          echo "pkg_name=${PKG_NAME}" >> "$GITHUB_OUTPUT"
           echo "tag_name=${COMBINED_VERSION}" >> "$GITHUB_OUTPUT"
           echo "main_version=$PKG_VERSION" >> "$GITHUB_OUTPUT"
           echo "main_full_version=$COMBINED_VERSION" >> "$GITHUB_OUTPUT"
@@ -76,8 +79,8 @@ jobs:
       - name: 🧾 Checkout repo
         uses: actions/checkout@v7
 
-      - name: 📛 Set PKG_NAME from repo
-        run: echo "PKG_NAME=${{ github.event.repository.name }}" >> "$GITHUB_ENV"
+      - name: 📛 Set PKG_NAME from Makefile
+        run: echo "PKG_NAME=${{ needs.check.outputs.pkg_name }}" >> "$GITHUB_ENV"
 
       - name: 🧰 Set up luci-app-advanced feed structure
         run: |
@@ -131,12 +134,9 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: ${{ env.PKG_NAME }}-${{ matrix.target }}-${{ matrix.version }}
-          # path: |
-            # bin/packages/*/jackie264/${{ env.PKG_NAME }}*.ipk
-            # bin/packages/*/jackie264/${{ env.PKG_NAME }}*.apk
           path: |
-            bin/**/*.ipk
-            bin/**/*.apk
+            bin/packages/*/jackie264/${{ env.PKG_NAME }}*.ipk
+            bin/packages/*/jackie264/${{ env.PKG_NAME }}*.apk
           # if-no-files-found: ignore
           if-no-files-found: error
 
@@ -179,7 +179,7 @@ jobs:
       - name: Update luci artifacts
         run: |
           set -e
-          CURRENT_PKG="${{ github.event.repository.name }}"
+          CURRENT_PKG="${{ needs.check.outputs.pkg_name }}"
           mkdir -p custom-packages/releases/packages-24.10/luci
           mkdir -p custom-packages/releases/packages-25.12/luci
           echo "Cleaning all old versions for $CURRENT_PKG before updating..."
