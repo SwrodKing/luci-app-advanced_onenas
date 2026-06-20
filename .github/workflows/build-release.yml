@@ -167,7 +167,8 @@ jobs:
       - name: Checkout custom-packages repo
         uses: actions/checkout@v7
         with:
-          repository: OneNAS-space/custom-packages
+          # repository: OneNAS-space/custom-packages
+          repository: SwrodKing/custom-packages_onenas
           token: ${{ secrets.CUSTOM_PACKAGES_TOKEN }}
           path: custom-packages
 
